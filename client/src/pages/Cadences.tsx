@@ -53,7 +53,7 @@ export default function Cadences() {
   return (
     <CRMLayout activeTab="cadences">
       <div className="space-y-6">
-        {/* Header */}
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Cadências de Contato</h1>
@@ -79,7 +79,7 @@ export default function Cadences() {
                       <FormItem>
                         <FormLabel>Nome da Cadência</FormLabel>
                         <FormControl>
-                          <Input placeholder="Ex: Follow-up Inicial" {...field} />
+                          <Input placeholder="Ex: Acompanhamento Inicial" {...field} />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
@@ -109,7 +109,7 @@ export default function Cadences() {
           </Dialog>
         </div>
 
-        {/* Cadências List */}
+        {/* Lista de Cadências */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {isLoading ? (
             <div className="col-span-full text-center py-12 text-slate-500">
@@ -167,7 +167,7 @@ export default function Cadences() {
           )}
         </div>
 
-        {/* Cadence Steps Details */}
+        {/* Detalhes da Cadência */}
         {selectedCadence && cadenceSteps && (
           <Card className="bg-white border-0 shadow-sm p-6">
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Etapas da Cadência</h2>

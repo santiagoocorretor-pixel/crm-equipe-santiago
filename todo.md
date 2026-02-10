@@ -69,3 +69,7 @@
 ## Melhorias Solicitadas
 - [x] Implementar drag-and-drop no Kanban para atualizar status de leads
 - [x] Traduzir interface para português (remover palavras em inglês)
+
+## Melhorias em Progresso
+- [x] Traduzir todas as palavras em inglês restantes
+- [x] Redesenhar Kanban similar ao Bitrix24 (visual moderno e profissional)

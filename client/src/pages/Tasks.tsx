@@ -5,7 +5,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Plus, Trash2, CheckCircle2, Circle, AlertCircle } from "lucide-react";
+import { Plus, Trash2, CheckCircle2, Circle } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -101,7 +101,7 @@ export default function Tasks() {
   return (
     <CRMLayout activeTab="tasks">
       <div className="space-y-6">
-        {/* Header */}
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Tarefas</h1>
@@ -219,7 +219,7 @@ export default function Tasks() {
           </Dialog>
         </div>
 
-        {/* Pending Tasks */}
+        {/* Tarefas Pendentes */}
         <div>
           <h2 className="text-lg font-semibold text-slate-900 mb-4">Tarefas Pendentes</h2>
           <div className="space-y-3">
@@ -277,7 +277,7 @@ export default function Tasks() {
           </div>
         </div>
 
-        {/* Completed Tasks */}
+        {/* Tarefas Concluídas */}
         {completedTasks.length > 0 && (
           <div>
             <h2 className="text-lg font-semibold text-slate-900 mb-4">Tarefas Concluídas</h2>

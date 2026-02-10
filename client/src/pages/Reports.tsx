@@ -38,7 +38,7 @@ export default function Reports() {
   return (
     <CRMLayout activeTab="reports">
       <div className="space-y-6">
-        {/* Header */}
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Relatórios</h1>
@@ -54,7 +54,7 @@ export default function Reports() {
         <Card className="bg-white border-0 shadow-sm p-6">
           <div className="flex gap-4 items-end">
             <div className="flex-1">
-              <label className="block text-sm font-medium text-slate-900 mb-2">Data Inicial</label>
+              <label className="block text-sm font-medium text-slate-900 mb-2">Data Inícial</label>
               <Input
                 type="date"
                 value={fromDate}
@@ -154,7 +154,7 @@ export default function Reports() {
               <table className="w-full">
                 <thead>
                   <tr className="border-b border-slate-200">
-                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-900">Lead ID</th>
+                    <th className="text-left py-3 px-4 text-sm font-semibold text-slate-900">ID Lead</th>
                     <th className="text-left py-3 px-4 text-sm font-semibold text-slate-900">Data de Conversão</th>
                     <th className="text-right py-3 px-4 text-sm font-semibold text-slate-900">Dias na Etapa</th>
                   </tr>

@@ -11,8 +11,10 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Card } from "@/components/ui/card";
-import { Trash2 } from "lucide-react";
+import { Trash2, GripVertical, User, Calendar, DollarSign } from "lucide-react";
 import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
+import { ptBR } from "date-fns/locale";
 
 interface Lead {
   id: number;
@@ -22,6 +24,7 @@ interface Lead {
   email?: string | null;
   phone?: string | null;
   funnelStageId: number;
+  createdAt?: Date;
 }
 
 interface Stage {
@@ -167,40 +170,51 @@ export default function KanbanBoard({
       onDragEnd={handleDragEnd}
       onDragStart={(event: DragStartEvent) => setIsDragging(true)}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-8">
         {stages.map((stage) => (
-          <div key={stage.id} className="flex flex-col">
-            <Card className="bg-white border-0 shadow-sm p-4 flex-1 flex flex-col">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-slate-900">{stage.name}</h3>
-                <span className="bg-slate-100 text-slate-600 text-xs font-medium px-2 py-1 rounded">
-                  {leadsByStage[stage.id]?.length || 0}
-                </span>
-              </div>
-
-              <SortableContext
-                items={leadsByStage[stage.id]?.map((l) => l.id) || []}
-                strategy={verticalListSortingStrategy}
-              >
-                <div className="space-y-3 flex-1 overflow-y-auto max-h-96" data-stage-id={stage.id}>
-                  {leadsByStage[stage.id] && leadsByStage[stage.id].length > 0 ? (
-                    leadsByStage[stage.id].map((lead) => (
-                      <LeadCard
-                        key={lead.id}
-                        lead={lead}
-                        stageId={stage.id}
-                        isDragging={isDragging}
-                        onDelete={() => handleDeleteLead(lead.id)}
-                      />
-                    ))
-                  ) : (
-                    <div className="text-center py-8 text-slate-400 text-sm">
-                      Nenhum lead nesta etapa
-                    </div>
-                  )}
+          <div key={stage.id} className="flex flex-col h-full">
+            {/* Cabeçalho da Coluna */}
+            <div className="bg-gradient-to-r from-slate-100 to-slate-50 rounded-t-lg border border-slate-200 p-4 mb-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-slate-900 text-sm">{stage.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {leadsByStage[stage.id]?.length || 0} lead{(leadsByStage[stage.id]?.length || 0) !== 1 ? 's' : ''}
+                  </p>
                 </div>
-              </SortableContext>
-            </Card>
+                <div className="bg-white rounded-full px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
+                  {leadsByStage[stage.id]?.length || 0}
+                </div>
+              </div>
+            </div>
+
+            {/* Área de Cards */}
+            <SortableContext
+              items={leadsByStage[stage.id]?.map((l) => l.id) || []}
+              strategy={verticalListSortingStrategy}
+            >
+              <div
+                className="bg-slate-50 border border-t-0 border-slate-200 rounded-b-lg flex-1 overflow-y-auto p-3 space-y-3 min-h-96"
+                data-stage-id={stage.id}
+              >
+                {leadsByStage[stage.id] && leadsByStage[stage.id].length > 0 ? (
+                  leadsByStage[stage.id].map((lead) => (
+                    <LeadCard
+                      key={lead.id}
+                      lead={lead}
+                      stageId={stage.id}
+                      isDragging={isDragging}
+                      onDelete={() => handleDeleteLead(lead.id)}
+                    />
+                  ))
+                ) : (
+                  <div className="text-center py-12 text-slate-400 text-sm">
+                    <p className="mb-1">Nenhum lead</p>
+                    <p className="text-xs">Arraste leads aqui</p>
+                  </div>
+                )}
+              </div>
+            </SortableContext>
           </div>
         ))}
       </div>
@@ -219,32 +233,61 @@ function LeadCard({ lead, stageId, isDragging, onDelete }: LeadCardProps) {
   return (
     <div
       draggable
-      className={`bg-slate-50 border border-slate-200 rounded-lg p-3 cursor-move hover:shadow-md transition-all ${
+      className={`bg-white border border-slate-200 rounded-lg p-4 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-slate-300 transition-all group ${
         isDragging ? "opacity-50" : ""
       }`}
       data-lead-id={lead.id}
     >
-      <div className="flex items-start justify-between gap-2">
-        <div className="flex-1 min-w-0">
-          <p className="font-medium text-slate-900 truncate">{lead.name}</p>
-          {lead.company && (
-            <p className="text-xs text-slate-500 truncate">{lead.company}</p>
-          )}
-          {lead.email && (
-            <p className="text-xs text-slate-500 truncate">{lead.email}</p>
-          )}
-          {lead.estimatedValue && (
-            <p className="text-sm font-semibold text-green-600 mt-2">
-              R$ {lead.estimatedValue}
-            </p>
-          )}
+      {/* Cabeçalho do Card */}
+      <div className="flex items-start justify-between gap-3 mb-3">
+        <div className="flex items-start gap-2 flex-1 min-w-0">
+          <GripVertical size={16} className="text-slate-400 mt-0.5 flex-shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="flex-1 min-w-0">
+            <p className="font-semibold text-slate-900 text-sm truncate leading-tight">{lead.name}</p>
+            {lead.company && (
+              <p className="text-xs text-slate-500 truncate mt-1">{lead.company}</p>
+            )}
+          </div>
         </div>
         <button
           onClick={onDelete}
-          className="text-slate-400 hover:text-red-600 transition-colors flex-shrink-0"
+          className="text-slate-400 hover:text-red-600 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100"
         >
           <Trash2 size={16} />
         </button>
+      </div>
+
+      {/* Informações do Lead */}
+      <div className="space-y-2 mb-3">
+        {lead.email && (
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <span className="w-4 h-4 rounded bg-blue-50 flex items-center justify-center flex-shrink-0">✉</span>
+            <span className="truncate">{lead.email}</span>
+          </div>
+        )}
+        {lead.phone && (
+          <div className="flex items-center gap-2 text-xs text-slate-600">
+            <span className="w-4 h-4 rounded bg-green-50 flex items-center justify-center flex-shrink-0">📱</span>
+            <span className="truncate">{lead.phone}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Rodapé do Card */}
+      <div className="flex items-center justify-between pt-3 border-t border-slate-100">
+        {lead.estimatedValue ? (
+          <div className="flex items-center gap-1">
+            <DollarSign size={14} className="text-green-600" />
+            <span className="text-sm font-semibold text-green-600">R$ {lead.estimatedValue}</span>
+          </div>
+        ) : (
+          <span className="text-xs text-slate-400">Sem valor</span>
+        )}
+        {lead.createdAt && (
+          <span className="text-xs text-slate-400">
+            {formatDistanceToNow(new Date(lead.createdAt), { locale: ptBR, addSuffix: false })}
+          </span>
+        )}
       </div>
     </div>
   );
