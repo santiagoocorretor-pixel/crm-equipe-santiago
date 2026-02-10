@@ -94,3 +94,10 @@
 - [x] Tornar o Kanban mais fluido e responsivo
 - [x] Adicionar feedback visual durante o arraste
 - [x] Integrar com página de Análise ao menu
+
+## Tarefas Atuais - Formulário de Edição e Drag-and-Drop
+- [x] Criar formulário de edição detalhado para leads
+- [x] Permitir atualização de informações de contato
+- [x] Permitir atualização de histórico no formulário
+- [x] Corrigir função de drag-and-drop para funcionar perfeitamente
+- [x] Testar drag-and-drop em todas as etapas

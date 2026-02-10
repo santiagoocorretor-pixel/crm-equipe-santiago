@@ -1,20 +1,10 @@
 import { useState, useEffect } from "react";
-import {
-  DndContext,
-  DragEndEvent,
-  DragOverEvent,
-  closestCenter,
-  PointerSensor,
-  useSensor,
-  useSensors,
-  DragStartEvent,
-} from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Card } from "@/components/ui/card";
-import { Trash2, GripVertical, DollarSign } from "lucide-react";
+import { Trash2, GripVertical, DollarSign, Edit2 } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
+import { Button } from "@/components/ui/button";
 
 interface Lead {
   id: number;
@@ -38,6 +28,7 @@ interface KanbanBoardProps {
   stages: Stage[];
   onUpdateLeadStage: (leadId: number, stageId: number) => Promise<void>;
   onDeleteLead: (leadId: number) => Promise<void>;
+  onEditLead?: (lead: Lead) => void;
   isLoading?: boolean;
 }
 
@@ -46,15 +37,12 @@ export default function KanbanBoard({
   stages,
   onUpdateLeadStage,
   onDeleteLead,
+  onEditLead,
   isLoading = false,
 }: KanbanBoardProps) {
   const [leadsByStage, setLeadsByStage] = useState<Record<number, Lead[]>>({});
-  const [isDragging, setIsDragging] = useState(false);
-  const [draggedLeadId, setDraggedLeadId] = useState<number | null>(null);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor)
-  );
+  const [draggedLead, setDraggedLead] = useState<{ leadId: number; fromStageId: number } | null>(null);
+  const [dragOverStageId, setDragOverStageId] = useState<number | null>(null);
 
   // Agrupar leads por etapa
   useEffect(() => {
@@ -65,99 +53,68 @@ export default function KanbanBoard({
     setLeadsByStage(grouped);
   }, [leads, stages]);
 
-  const handleDragStart = (event: DragStartEvent) => {
-    setIsDragging(true);
-    setDraggedLeadId(Number(event.active.id));
+  const handleDragStart = (leadId: number, stageId: number) => {
+    setDraggedLead({ leadId, fromStageId: stageId });
   };
 
-  const handleDragOver = (event: DragOverEvent) => {
-    const { active, over } = event;
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>, stageId: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    setDragOverStageId(stageId);
+  };
 
-    if (!over) return;
+  const handleDragLeave = () => {
+    setDragOverStageId(null);
+  };
 
-    const activeLeadId = Number(active.id);
-    const overStageId = Number(over.id);
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>, toStageId: number) => {
+    e.preventDefault();
+    setDragOverStageId(null);
 
-    if (isNaN(activeLeadId) || isNaN(overStageId)) return;
+    if (!draggedLead) return;
 
-    // Encontrar o lead sendo arrastado e sua etapa atual
-    let activeLead: Lead | null = null;
-    let activeStageId: number | null = null;
+    const { leadId, fromStageId } = draggedLead;
 
-    for (const [stageId, stageLeads] of Object.entries(leadsByStage)) {
-      const found = stageLeads.find((l) => l.id === activeLeadId);
-      if (found) {
-        activeLead = found;
-        activeStageId = Number(stageId);
-        break;
-      }
+    // Se for a mesma etapa, não faz nada
+    if (fromStageId === toStageId) {
+      setDraggedLead(null);
+      return;
     }
 
-    if (!activeLead || activeStageId === null) return;
+    // Atualizar estado local otimisticamente
+    setLeadsByStage((prev) => {
+      const newState = { ...prev };
+      const lead = newState[fromStageId]?.find((l) => l.id === leadId);
+      
+      if (lead) {
+        newState[fromStageId] = newState[fromStageId].filter((l) => l.id !== leadId);
+        newState[toStageId] = [...(newState[toStageId] || []), { ...lead, funnelStageId: toStageId }];
+      }
+      
+      return newState;
+    });
 
-    // Se o lead está sendo movido para uma etapa diferente
-    if (activeStageId !== overStageId) {
+    // Atualizar no backend
+    try {
+      await onUpdateLeadStage(leadId, toStageId);
+      toast.success("Lead movido com sucesso!");
+    } catch (error) {
+      // Reverter em caso de erro
       setLeadsByStage((prev) => {
         const newState = { ...prev };
-        // Remove do estágio anterior
-        newState[activeStageId] = newState[activeStageId].filter(
-          (l) => l.id !== activeLeadId
-        );
-        // Adiciona ao novo estágio
-        newState[overStageId] = [
-          ...newState[overStageId],
-          { ...activeLead, funnelStageId: overStageId },
-        ];
+        const lead = newState[toStageId]?.find((l) => l.id === leadId);
+        
+        if (lead) {
+          newState[toStageId] = newState[toStageId].filter((l) => l.id !== leadId);
+          newState[fromStageId] = [...(newState[fromStageId] || []), { ...lead, funnelStageId: fromStageId }];
+        }
+        
         return newState;
       });
-    }
-  };
-
-  const handleDragEnd = async (event: DragEndEvent) => {
-    const { active, over } = event;
-    setIsDragging(false);
-    setDraggedLeadId(null);
-
-    if (!over) return;
-
-    const activeLeadId = Number(active.id);
-    const overStageId = Number(over.id);
-
-    if (isNaN(activeLeadId) || isNaN(overStageId)) return;
-
-    // Encontrar o estágio anterior do lead
-    let previousStageId: number | null = null;
-    for (const [stageId, stageLeads] of Object.entries(leadsByStage)) {
-      if (stageLeads.some((l) => l.id === activeLeadId)) {
-        previousStageId = Number(stageId);
-        break;
-      }
+      toast.error("Erro ao mover lead");
     }
 
-    // Se a etapa mudou, atualizar no backend
-    if (previousStageId !== null && previousStageId !== overStageId) {
-      try {
-        await onUpdateLeadStage(activeLeadId, overStageId);
-        toast.success("Lead movido com sucesso!");
-      } catch (error) {
-        // Reverter mudança local em caso de erro
-        setLeadsByStage((prev) => {
-          const newState = { ...prev };
-          const lead = newState[overStageId].find((l) => l.id === activeLeadId);
-          if (lead) {
-            newState[overStageId] = newState[overStageId].filter(
-              (l) => l.id !== activeLeadId
-            );
-            newState[previousStageId] = [
-              ...newState[previousStageId],
-              { ...lead, funnelStageId: previousStageId },
-            ];
-          }
-          return newState;
-        });
-        toast.error("Erro ao mover lead");
-      }
-    }
+    setDraggedLead(null);
   };
 
   const handleDeleteLead = async (leadId: number) => {
@@ -170,96 +127,78 @@ export default function KanbanBoard({
   };
 
   return (
-    <DndContext
-      sensors={sensors}
-      collisionDetection={closestCenter}
-      onDragStart={handleDragStart}
-      onDragOver={handleDragOver}
-      onDragEnd={handleDragEnd}
-    >
-      <div className="overflow-x-auto pb-8">
-        <div className="flex gap-4 min-w-max">
-          {stages.map((stage) => (
-            <div key={stage.id} className="flex flex-col h-full min-w-[350px] max-w-[350px]">
-              {/* Cabeçalho da Coluna */}
-              <div className="bg-gradient-to-r from-slate-100 to-slate-50 rounded-t-lg border border-slate-200 p-4 mb-0">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h3 className="font-semibold text-slate-900 text-sm">{stage.name}</h3>
-                    <p className="text-xs text-slate-500 mt-1">
-                      {leadsByStage[stage.id]?.length || 0} lead{(leadsByStage[stage.id]?.length || 0) !== 1 ? 's' : ''}
-                    </p>
-                  </div>
-                  <div className="bg-white rounded-full px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
-                    {leadsByStage[stage.id]?.length || 0}
-                  </div>
+    <div className="overflow-x-auto pb-8">
+      <div className="flex gap-4 min-w-max">
+        {stages.map((stage) => (
+          <div
+            key={stage.id}
+            className="flex flex-col h-full min-w-[350px] max-w-[350px]"
+          >
+            {/* Cabeçalho da Coluna */}
+            <div className="bg-gradient-to-r from-slate-100 to-slate-50 rounded-t-lg border border-slate-200 p-4 mb-0">
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="font-semibold text-slate-900 text-sm">{stage.name}</h3>
+                  <p className="text-xs text-slate-500 mt-1">
+                    {leadsByStage[stage.id]?.length || 0} lead{(leadsByStage[stage.id]?.length || 0) !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <div className="bg-white rounded-full px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
+                  {leadsByStage[stage.id]?.length || 0}
                 </div>
               </div>
-
-              {/* Área de Cards - Droppable Zone */}
-              <div
-                className="bg-slate-50 border border-t-0 border-slate-200 rounded-b-lg flex-1 overflow-y-auto p-3 space-y-3 min-h-96 transition-colors hover:bg-slate-100"
-                data-stage-id={stage.id}
-                onDragOver={(e) => {
-                  e.preventDefault();
-                  e.currentTarget.classList.add('bg-blue-50');
-                }}
-                onDragLeave={(e) => {
-                  e.currentTarget.classList.remove('bg-blue-50');
-                }}
-                onDrop={(e) => {
-                  e.currentTarget.classList.remove('bg-blue-50');
-                }}
-              >
-                <SortableContext
-                  items={leadsByStage[stage.id]?.map((l) => l.id) || []}
-                  strategy={verticalListSortingStrategy}
-                >
-                  {leadsByStage[stage.id] && leadsByStage[stage.id].length > 0 ? (
-                    leadsByStage[stage.id].map((lead) => (
-                      <LeadCard
-                        key={lead.id}
-                        lead={lead}
-                        stageId={stage.id}
-                        isDragging={isDragging && draggedLeadId === lead.id}
-                        onDelete={() => handleDeleteLead(lead.id)}
-                      />
-                    ))
-                  ) : (
-                    <div className="text-center py-12 text-slate-400 text-sm">
-                      <p className="mb-1">Nenhum lead</p>
-                      <p className="text-xs">Arraste leads aqui</p>
-                    </div>
-                  )}
-                </SortableContext>
-              </div>
             </div>
-          ))}
-        </div>
+
+            {/* Área de Cards - Droppable Zone */}
+            <div
+              className={`bg-slate-50 border border-t-0 border-slate-200 rounded-b-lg flex-1 overflow-y-auto p-3 space-y-3 min-h-96 transition-all ${
+                dragOverStageId === stage.id ? "bg-blue-50 border-blue-300" : "hover:bg-slate-100"
+              }`}
+              onDragOver={(e) => handleDragOver(e, stage.id)}
+              onDragLeave={handleDragLeave}
+              onDrop={(e) => handleDrop(e, stage.id)}
+            >
+              {leadsByStage[stage.id] && leadsByStage[stage.id].length > 0 ? (
+                leadsByStage[stage.id].map((lead) => (
+                  <LeadCard
+                    key={lead.id}
+                    lead={lead}
+                    isDragging={draggedLead?.leadId === lead.id}
+                    onDragStart={() => handleDragStart(lead.id, stage.id)}
+                    onDelete={() => handleDeleteLead(lead.id)}
+                    onEdit={() => onEditLead?.(lead)}
+                  />
+                ))
+              ) : (
+                <div className="text-center py-12 text-slate-400 text-sm">
+                  <p className="mb-1">Nenhum lead</p>
+                  <p className="text-xs">Arraste leads aqui</p>
+                </div>
+              )}
+            </div>
+          </div>
+        ))}
       </div>
-    </DndContext>
+    </div>
   );
 }
 
 interface LeadCardProps {
   lead: Lead;
-  stageId: number;
   isDragging: boolean;
+  onDragStart: () => void;
   onDelete: () => void;
+  onEdit: () => void;
 }
 
-function LeadCard({ lead, stageId, isDragging, onDelete }: LeadCardProps) {
+function LeadCard({ lead, isDragging, onDragStart, onDelete, onEdit }: LeadCardProps) {
   return (
     <div
       draggable
-      id={String(lead.id)}
+      onDragStart={onDragStart}
       className={`bg-white border border-slate-200 rounded-lg p-4 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-slate-300 transition-all group ${
         isDragging ? "opacity-50 scale-95" : ""
       }`}
-      onDragStart={(e) => {
-        e.dataTransfer.effectAllowed = "move";
-        e.dataTransfer.setData("text/plain", String(lead.id));
-      }}
     >
       {/* Cabeçalho do Card */}
       <div className="flex items-start justify-between gap-3 mb-3">
@@ -272,12 +211,22 @@ function LeadCard({ lead, stageId, isDragging, onDelete }: LeadCardProps) {
             )}
           </div>
         </div>
-        <button
-          onClick={onDelete}
-          className="text-slate-400 hover:text-red-600 transition-colors flex-shrink-0 opacity-0 group-hover:opacity-100"
-        >
-          <Trash2 size={16} />
-        </button>
+        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={onEdit}
+            className="text-slate-400 hover:text-blue-600 transition-colors flex-shrink-0 p-1"
+            title="Editar lead"
+          >
+            <Edit2 size={16} />
+          </button>
+          <button
+            onClick={onDelete}
+            className="text-slate-400 hover:text-red-600 transition-colors flex-shrink-0 p-1"
+            title="Deletar lead"
+          >
+            <Trash2 size={16} />
+          </button>
+        </div>
       </div>
 
       {/* Informações do Lead */}

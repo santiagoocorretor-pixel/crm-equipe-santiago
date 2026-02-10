@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import CRMLayout from "@/components/CRMLayout";
 import KanbanBoard from "@/components/KanbanBoard";
+import EditLeadModal from "@/components/EditLeadModal";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -27,10 +28,28 @@ const leadSchema = z.object({
 
 type LeadFormData = z.infer<typeof leadSchema>;
 
+interface Lead {
+  id: number;
+  name: string;
+  email?: string | null;
+  phone?: string | null;
+  company?: string | null;
+  position?: string | null;
+  origin?: string | null;
+  property?: string | null;
+  source?: string | null;
+  estimatedValue?: string | null;
+  funnelStageId: number;
+  createdAt?: Date;
+  notes?: string | null;
+}
+
 export default function Leads() {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedStage, setSelectedStage] = useState<number | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
   const { data: stages, isLoading: stagesLoading } = trpc.funnelStages.list.useQuery();
   const { data: leads, isLoading: leadsLoading, refetch: refetchLeads } = trpc.leads.list.useQuery({
@@ -108,6 +127,11 @@ export default function Leads() {
         }
       );
     });
+  };
+
+  const handleEditLead = (lead: Lead) => {
+    setSelectedLead(lead);
+    setIsEditModalOpen(true);
   };
 
   return (
@@ -273,11 +297,25 @@ export default function Leads() {
             stages={stages || []}
             onUpdateLeadStage={handleUpdateLeadStage}
             onDeleteLead={handleDeleteLead}
+            onEditLead={handleEditLead}
             isLoading={leadsLoading}
           />
         )}
       </div>
+
+      {/* Modal de Edição */}
+      <EditLeadModal
+        lead={selectedLead}
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setSelectedLead(null);
+        }}
+        onSuccess={() => {
+          refetchLeads();
+        }}
+        stages={stages || []}
+      />
     </CRMLayout>
   );
 }
-
