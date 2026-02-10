@@ -3,7 +3,7 @@ import {
   DndContext,
   DragEndEvent,
   DragOverEvent,
-  closestCorners,
+  closestCenter,
   PointerSensor,
   useSensor,
   useSensors,
@@ -11,7 +11,7 @@ import {
 } from "@dnd-kit/core";
 import { SortableContext, verticalListSortingStrategy } from "@dnd-kit/sortable";
 import { Card } from "@/components/ui/card";
-import { Trash2, GripVertical, User, Calendar, DollarSign } from "lucide-react";
+import { Trash2, GripVertical, DollarSign } from "lucide-react";
 import { toast } from "sonner";
 import { formatDistanceToNow } from "date-fns";
 import { ptBR } from "date-fns/locale";
@@ -50,6 +50,7 @@ export default function KanbanBoard({
 }: KanbanBoardProps) {
   const [leadsByStage, setLeadsByStage] = useState<Record<number, Lead[]>>({});
   const [isDragging, setIsDragging] = useState(false);
+  const [draggedLeadId, setDraggedLeadId] = useState<number | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor)
@@ -64,6 +65,11 @@ export default function KanbanBoard({
     setLeadsByStage(grouped);
   }, [leads, stages]);
 
+  const handleDragStart = (event: DragStartEvent) => {
+    setIsDragging(true);
+    setDraggedLeadId(Number(event.active.id));
+  };
+
   const handleDragOver = (event: DragOverEvent) => {
     const { active, over } = event;
 
@@ -74,7 +80,7 @@ export default function KanbanBoard({
 
     if (isNaN(activeLeadId) || isNaN(overStageId)) return;
 
-    // Encontrar o lead sendo arrastado
+    // Encontrar o lead sendo arrastado e sua etapa atual
     let activeLead: Lead | null = null;
     let activeStageId: number | null = null;
 
@@ -110,6 +116,7 @@ export default function KanbanBoard({
   const handleDragEnd = async (event: DragEndEvent) => {
     const { active, over } = event;
     setIsDragging(false);
+    setDraggedLeadId(null);
 
     if (!over) return;
 
@@ -165,59 +172,69 @@ export default function KanbanBoard({
   return (
     <DndContext
       sensors={sensors}
-      collisionDetection={closestCorners}
+      collisionDetection={closestCenter}
+      onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
-      onDragStart={(event: DragStartEvent) => setIsDragging(true)}
     >
       <div className="overflow-x-auto pb-8">
         <div className="flex gap-4 min-w-max">
-        {stages.map((stage) => (
-          <div key={stage.id} className="flex flex-col h-full min-w-[350px] max-w-[350px]">
-            {/* Cabeçalho da Coluna */}
-            <div className="bg-gradient-to-r from-slate-100 to-slate-50 rounded-t-lg border border-slate-200 p-4 mb-0">
-              <div className="flex items-center justify-between">
-                <div>
-                  <h3 className="font-semibold text-slate-900 text-sm">{stage.name}</h3>
-                  <p className="text-xs text-slate-500 mt-1">
-                    {leadsByStage[stage.id]?.length || 0} lead{(leadsByStage[stage.id]?.length || 0) !== 1 ? 's' : ''}
-                  </p>
-                </div>
-                <div className="bg-white rounded-full px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
-                  {leadsByStage[stage.id]?.length || 0}
+          {stages.map((stage) => (
+            <div key={stage.id} className="flex flex-col h-full min-w-[350px] max-w-[350px]">
+              {/* Cabeçalho da Coluna */}
+              <div className="bg-gradient-to-r from-slate-100 to-slate-50 rounded-t-lg border border-slate-200 p-4 mb-0">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h3 className="font-semibold text-slate-900 text-sm">{stage.name}</h3>
+                    <p className="text-xs text-slate-500 mt-1">
+                      {leadsByStage[stage.id]?.length || 0} lead{(leadsByStage[stage.id]?.length || 0) !== 1 ? 's' : ''}
+                    </p>
+                  </div>
+                  <div className="bg-white rounded-full px-3 py-1 text-xs font-semibold text-slate-600 border border-slate-200">
+                    {leadsByStage[stage.id]?.length || 0}
+                  </div>
                 </div>
               </div>
-            </div>
 
-            {/* Área de Cards */}
-            <SortableContext
-              items={leadsByStage[stage.id]?.map((l) => l.id) || []}
-              strategy={verticalListSortingStrategy}
-            >
+              {/* Área de Cards - Droppable Zone */}
               <div
                 className="bg-slate-50 border border-t-0 border-slate-200 rounded-b-lg flex-1 overflow-y-auto p-3 space-y-3 min-h-96 transition-colors hover:bg-slate-100"
                 data-stage-id={stage.id}
+                onDragOver={(e) => {
+                  e.preventDefault();
+                  e.currentTarget.classList.add('bg-blue-50');
+                }}
+                onDragLeave={(e) => {
+                  e.currentTarget.classList.remove('bg-blue-50');
+                }}
+                onDrop={(e) => {
+                  e.currentTarget.classList.remove('bg-blue-50');
+                }}
               >
-                {leadsByStage[stage.id] && leadsByStage[stage.id].length > 0 ? (
-                  leadsByStage[stage.id].map((lead) => (
-                    <LeadCard
-                      key={lead.id}
-                      lead={lead}
-                      stageId={stage.id}
-                      isDragging={isDragging}
-                      onDelete={() => handleDeleteLead(lead.id)}
-                    />
-                  ))
-                ) : (
-                  <div className="text-center py-12 text-slate-400 text-sm">
-                    <p className="mb-1">Nenhum lead</p>
-                    <p className="text-xs">Arraste leads aqui</p>
-                  </div>
-                )}
+                <SortableContext
+                  items={leadsByStage[stage.id]?.map((l) => l.id) || []}
+                  strategy={verticalListSortingStrategy}
+                >
+                  {leadsByStage[stage.id] && leadsByStage[stage.id].length > 0 ? (
+                    leadsByStage[stage.id].map((lead) => (
+                      <LeadCard
+                        key={lead.id}
+                        lead={lead}
+                        stageId={stage.id}
+                        isDragging={isDragging && draggedLeadId === lead.id}
+                        onDelete={() => handleDeleteLead(lead.id)}
+                      />
+                    ))
+                  ) : (
+                    <div className="text-center py-12 text-slate-400 text-sm">
+                      <p className="mb-1">Nenhum lead</p>
+                      <p className="text-xs">Arraste leads aqui</p>
+                    </div>
+                  )}
+                </SortableContext>
               </div>
-            </SortableContext>
-          </div>
-        ))}
+            </div>
+          ))}
         </div>
       </div>
     </DndContext>
@@ -235,10 +252,14 @@ function LeadCard({ lead, stageId, isDragging, onDelete }: LeadCardProps) {
   return (
     <div
       draggable
+      id={String(lead.id)}
       className={`bg-white border border-slate-200 rounded-lg p-4 cursor-grab active:cursor-grabbing hover:shadow-md hover:border-slate-300 transition-all group ${
-        isDragging ? "opacity-50" : ""
+        isDragging ? "opacity-50 scale-95" : ""
       }`}
-      data-lead-id={lead.id}
+      onDragStart={(e) => {
+        e.dataTransfer.effectAllowed = "move";
+        e.dataTransfer.setData("text/plain", String(lead.id));
+      }}
     >
       {/* Cabeçalho do Card */}
       <div className="flex items-start justify-between gap-3 mb-3">
