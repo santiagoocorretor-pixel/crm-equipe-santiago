@@ -170,9 +170,10 @@ export default function KanbanBoard({
       onDragEnd={handleDragEnd}
       onDragStart={(event: DragStartEvent) => setIsDragging(true)}
     >
-      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-4 gap-4 pb-8">
+      <div className="overflow-x-auto pb-8">
+        <div className="flex gap-4 min-w-max">
         {stages.map((stage) => (
-          <div key={stage.id} className="flex flex-col h-full">
+          <div key={stage.id} className="flex flex-col h-full min-w-[350px] max-w-[350px]">
             {/* Cabeçalho da Coluna */}
             <div className="bg-gradient-to-r from-slate-100 to-slate-50 rounded-t-lg border border-slate-200 p-4 mb-0">
               <div className="flex items-center justify-between">
@@ -194,7 +195,7 @@ export default function KanbanBoard({
               strategy={verticalListSortingStrategy}
             >
               <div
-                className="bg-slate-50 border border-t-0 border-slate-200 rounded-b-lg flex-1 overflow-y-auto p-3 space-y-3 min-h-96"
+                className="bg-slate-50 border border-t-0 border-slate-200 rounded-b-lg flex-1 overflow-y-auto p-3 space-y-3 min-h-96 transition-colors hover:bg-slate-100"
                 data-stage-id={stage.id}
               >
                 {leadsByStage[stage.id] && leadsByStage[stage.id].length > 0 ? (
@@ -217,6 +218,7 @@ export default function KanbanBoard({
             </SortableContext>
           </div>
         ))}
+        </div>
       </div>
     </DndContext>
   );

@@ -81,3 +81,16 @@
 - [x] Criar página de Histórico com timeline de interações
 - [x] Adicionar funcionalidade de editar lead
 - [x] Melhorar UX geral do CRM com melhor explicação
+
+## Dashboard de Análise Avançada
+- [x] Criar página de Análise com gráficos de conversão
+- [x] Implementar gráfico de tempo médio por etapa
+- [x] Adicionar análise de performance por vendedor
+- [x] Criar gráficos de funil de vendas
+- [x] Adicionar filtros de período e vendedor
+
+## Melhorias em Progresso - Drag-and-Drop Horizontal
+- [x] Melhorar drag-and-drop para arrastar horizontalmente entre colunas
+- [x] Tornar o Kanban mais fluido e responsivo
+- [x] Adicionar feedback visual durante o arraste
+- [x] Integrar com página de Análise ao menu
