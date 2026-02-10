@@ -363,6 +363,10 @@ export const appRouter = router({
       return db.getUserTasks(ctx.user.id, "pending");
     }),
 
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return db.getUserTasks(ctx.user.id, "pending");
+    }),
+
     update: protectedProcedure
       .input(
         z.object({

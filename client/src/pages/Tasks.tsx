@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { trpc } from "@/lib/trpc";
 import CRMLayout from "@/components/CRMLayout";
+import TaskAlertBanner from "@/components/TaskAlertBanner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -101,6 +102,9 @@ export default function Tasks() {
   return (
     <CRMLayout activeTab="tasks">
       <div className="space-y-6">
+        {/* Banner de Alertas */}
+        <TaskAlertBanner />
+
         {/* Cabeçalho */}
         <div className="flex items-center justify-between">
           <div>

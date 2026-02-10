@@ -101,3 +101,9 @@
 - [x] Permitir atualização de histórico no formulário
 - [x] Corrigir função de drag-and-drop para funcionar perfeitamente
 - [x] Testar drag-and-drop em todas as etapas
+
+## Novas Funcionalidades Solicitadas
+- [x] Criar coluna "Visita" entre "Qualificação" e "Proposta"
+- [x] Implementar sistema de alertas/lembretes de tarefas
+- [x] Adicionar notificações visuais de tarefas vencidas
+- [x] Testar novas funcionalidades

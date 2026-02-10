@@ -124,10 +124,11 @@ export async function getOrCreateDefaultFunnelStages(userId: number) {
   const defaultStages = [
     { name: "Prospecção", order: 1, color: "#3B82F6" },
     { name: "Qualificação", order: 2, color: "#8B5CF6" },
-    { name: "Proposta", order: 3, color: "#EC4899" },
-    { name: "Negociação", order: 4, color: "#F59E0B" },
-    { name: "Fechamento", order: 5, color: "#10B981" },
-    { name: "Perdido", order: 6, color: "#6B7280" },
+    { name: "Visita", order: 3, color: "#06B6D4" },
+    { name: "Proposta", order: 4, color: "#EC4899" },
+    { name: "Negociação", order: 5, color: "#F59E0B" },
+    { name: "Fechamento", order: 6, color: "#10B981" },
+    { name: "Perdido", order: 7, color: "#6B7280" },
   ];
 
   const created = await db

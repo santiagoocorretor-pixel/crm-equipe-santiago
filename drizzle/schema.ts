@@ -157,6 +157,8 @@ export const tasks = mysqlTable("tasks", {
   reminderTime: datetime("reminderTime"),
   status: mysqlEnum("status", ["pending", "completed", "cancelled"]).default("pending").notNull(),
   priority: mysqlEnum("priority", ["low", "medium", "high"]).default("medium").notNull(),
+  hasAlert: boolean("hasAlert").default(false).notNull(),
+  alertSent: boolean("alertSent").default(false).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
   completedAt: timestamp("completedAt"),
