@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import CRMLayout from "@/components/CRMLayout";
-import { Card } from "@/components/ui/card";
+import KanbanBoard from "@/components/KanbanBoard";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Plus, Search, Trash2, Edit2 } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { toast } from "sonner";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -50,6 +50,15 @@ export default function Leads() {
     },
   });
 
+  const updateLeadStage = trpc.leads.update.useMutation({
+    onSuccess: () => {
+      refetchLeads();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Erro ao atualizar etapa do lead");
+    },
+  });
+
   const deleteLead = trpc.leads.delete.useMutation({
     onSuccess: () => {
       toast.success("Lead deletado com sucesso!");
@@ -77,15 +86,34 @@ export default function Leads() {
     await createLead.mutateAsync(data);
   };
 
-  const groupedLeads = stages?.reduce((acc, stage) => {
-    acc[stage.id] = leads?.filter(l => l.funnelStageId === stage.id) || [];
-    return acc;
-  }, {} as Record<number, typeof leads>);
+  const handleUpdateLeadStage = async (leadId: number, stageId: number) => {
+    return new Promise<void>((resolve, reject) => {
+      updateLeadStage.mutate(
+        { id: leadId, funnelStageId: stageId },
+        {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error),
+        }
+      );
+    });
+  };
+
+  const handleDeleteLead = async (leadId: number) => {
+    return new Promise<void>((resolve, reject) => {
+      deleteLead.mutate(
+        { id: leadId },
+        {
+          onSuccess: () => resolve(),
+          onError: (error) => reject(error),
+        }
+      );
+    });
+  };
 
   return (
     <CRMLayout activeTab="leads">
       <div className="space-y-6">
-        {/* Header */}
+        {/* Cabeçalho */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold text-slate-900">Leads</h1>
@@ -234,46 +262,20 @@ export default function Leads() {
           </Select>
         </div>
 
-        {/* Kanban Board */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
-          {stages?.map((stage) => (
-            <Card key={stage.id} className="bg-white border-0 shadow-sm p-4">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-semibold text-slate-900">{stage.name}</h3>
-                <span className="bg-slate-100 text-slate-600 text-xs font-medium px-2 py-1 rounded">
-                  {groupedLeads?.[stage.id]?.length || 0}
-                </span>
-              </div>
-
-              <div className="space-y-3 max-h-96 overflow-y-auto">
-                {(groupedLeads?.[stage.id] || [])?.map((lead) => (
-                  <div key={lead.id} className="bg-slate-50 border border-slate-200 rounded-lg p-3 hover:shadow-md transition-shadow">
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="flex-1 min-w-0">
-                        <p className="font-medium text-slate-900 truncate">{lead.name}</p>
-                        <p className="text-xs text-slate-500 truncate">{lead.company}</p>
-                        {lead.estimatedValue && (
-                          <p className="text-sm font-semibold text-green-600 mt-1">R$ {lead.estimatedValue}</p>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => deleteLead.mutate({ id: lead.id })}
-                        className="text-slate-400 hover:text-red-600 transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
-                ))}
-                {!groupedLeads?.[stage.id] || (groupedLeads?.[stage.id]?.length || 0) === 0 ? (
-                  <div className="text-center py-8 text-slate-400 text-sm">
-                    Nenhum lead nesta etapa
-                  </div>
-                ) : null}
-              </div>
-            </Card>
-          ))}
-        </div>
+        {/* Quadro Kanban */}
+        {leadsLoading ? (
+          <div className="text-center py-12 text-slate-500">
+            Carregando leads...
+          </div>
+        ) : (
+          <KanbanBoard
+            leads={leads || []}
+            stages={stages || []}
+            onUpdateLeadStage={handleUpdateLeadStage}
+            onDeleteLead={handleDeleteLead}
+            isLoading={leadsLoading}
+          />
+        )}
       </div>
     </CRMLayout>
   );

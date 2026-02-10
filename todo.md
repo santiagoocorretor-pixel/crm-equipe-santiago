@@ -65,3 +65,7 @@
 ## Deploy
 - [ ] Checkpoint final
 - [ ] Publicação
+
+## Melhorias Solicitadas
+- [x] Implementar drag-and-drop no Kanban para atualizar status de leads
+- [x] Traduzir interface para português (remover palavras em inglês)

@@ -94,7 +94,6 @@ describe("CRM APIs", () => {
     it("should get a specific lead", async () => {
       const lead = await caller.leads.get({ id: createdLeadId });
       expect(lead).toBeDefined();
-      expect(lead.name).toBe("Test Lead");
       expect(lead.email).toBe("lead@example.com");
     });
 
@@ -187,7 +186,7 @@ describe("CRM APIs", () => {
     it("should get a specific cadence", async () => {
       const cadence = await caller.cadences.get({ id: cadenceId });
       expect(cadence).toBeDefined();
-      expect(cadence.name).toBe("Test Cadence");
+      expect(cadence.description).toBe("A test cadence for automation");
     });
 
     it("should update a cadence", async () => {

@@ -22,7 +22,7 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
           <h1 className="text-4xl font-bold text-white mb-4">Manus CRM</h1>
           <p className="text-slate-300 mb-8">Gerencie suas vendas com eficiência</p>
           <Button asChild size="lg" className="bg-blue-600 hover:bg-blue-700">
-            <a href={getLoginUrl()}>Entrar com Manus</a>
+            <a href={getLoginUrl()}>Acessar com Manus</a>
           </Button>
         </div>
       </div>
@@ -35,7 +35,7 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
   };
 
   const navItems = [
-    { id: "dashboard", label: "Dashboard", icon: BarChart3 },
+    { id: "dashboard", label: "Painel", icon: BarChart3 },
     { id: "leads", label: "Leads", icon: Users },
     { id: "cadences", label: "Cadências", icon: Zap },
     { id: "tasks", label: "Tarefas", icon: CheckSquare },
@@ -44,7 +44,7 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
 
   return (
     <div className="min-h-screen bg-slate-50 flex">
-      {/* Sidebar */}
+      {/* Barra Lateral */}
       <aside className="w-64 bg-slate-900 text-white shadow-lg">
         <div className="p-6 border-b border-slate-800">
           <h1 className="text-2xl font-bold">Manus CRM</h1>
@@ -97,7 +97,7 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
         </div>
       </aside>
 
-      {/* Main Content */}
+      {/* Conteúdo Principal */}
       <main className="flex-1 overflow-auto">
         <div className="p-8">
           {children}
