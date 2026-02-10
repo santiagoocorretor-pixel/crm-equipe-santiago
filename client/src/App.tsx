@@ -9,12 +9,14 @@ import Leads from "./pages/Leads";
 import Cadences from "./pages/Cadences";
 import Tasks from "./pages/Tasks";
 import Reports from "./pages/Reports";
+import History from "./pages/History";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Dashboard} />
       <Route path={"/leads"} component={Leads} />
+      <Route path={"/history"} component={History} />
       <Route path={"/cadences"} component={Cadences} />
       <Route path={"/tasks"} component={Tasks} />
       <Route path={"/reports"} component={Reports} />

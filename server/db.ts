@@ -162,6 +162,8 @@ export async function createLead(data: {
   company?: string;
   position?: string;
   origin?: string;
+  source?: string;
+  property?: string;
   estimatedValue?: string | number;
   funnelStageId: number;
   assignedTo?: number;
@@ -257,6 +259,10 @@ export async function getLeadInteractions(leadId: number) {
     .from(interactions)
     .where(eq(interactions.leadId, leadId))
     .orderBy(desc(interactions.createdAt));
+}
+
+export async function getInteractionsByLead(leadId: number) {
+  return getLeadInteractions(leadId);
 }
 
 // ============ CADENCES ============

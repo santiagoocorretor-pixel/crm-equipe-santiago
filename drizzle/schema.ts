@@ -56,6 +56,8 @@ export const leads = mysqlTable("leads", {
   company: varchar("company", { length: 255 }),
   position: varchar("position", { length: 255 }),
   origin: varchar("origin", { length: 100 }), // Website, Referência, LinkedIn, etc
+  source: varchar("source", { length: 100 }), // Fonte do lead (Imobiliária, Indicado, etc)
+  property: varchar("property", { length: 255 }), // Imóvel associado
   estimatedValue: varchar("estimatedValue", { length: 20 }),
   funnelStageId: int("funnelStageId").notNull().references(() => funnelStages.id),
   assignedTo: int("assignedTo").references(() => users.id),

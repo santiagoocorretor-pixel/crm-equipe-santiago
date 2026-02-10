@@ -1,14 +1,14 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { useLocation } from "wouter";
 import { Button } from "@/components/ui/button";
-import { LogOut, BarChart3, Users, Zap, CheckSquare, Settings } from "lucide-react";
+import { LogOut, BarChart3, Users, Zap, CheckSquare, Settings, Clock } from "lucide-react";
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
 
 interface CRMLayoutProps {
   children: React.ReactNode;
-  activeTab: "dashboard" | "leads" | "cadences" | "tasks" | "reports";
+  activeTab: "dashboard" | "leads" | "history" | "cadences" | "tasks" | "reports";
 }
 
 export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
@@ -37,6 +37,7 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
   const navItems = [
     { id: "dashboard", label: "Painel", icon: BarChart3 },
     { id: "leads", label: "Leads", icon: Users },
+    { id: "history", label: "Histórico", icon: Clock },
     { id: "cadences", label: "Cadências", icon: Zap },
     { id: "tasks", label: "Tarefas", icon: CheckSquare },
     { id: "reports", label: "Relatórios", icon: BarChart3 },
@@ -62,6 +63,7 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
                   const routes: Record<string, string> = {
                     dashboard: "/",
                     leads: "/leads",
+                    history: "/history",
                     cadences: "/cadences",
                     tasks: "/tasks",
                     reports: "/reports",

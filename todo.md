@@ -73,3 +73,11 @@
 ## Melhorias em Progresso
 - [x] Traduzir todas as palavras em inglês restantes
 - [x] Redesenhar Kanban similar ao Bitrix24 (visual moderno e profissional)
+
+## Melhorias Solicitadas pelo Usuário
+- [x] Traduzir página de Tarefas completamente (remover inglês)
+- [x] Melhorar drag-and-drop para ser mais intuitivo
+- [x] Adicionar campos de Imóvel e Fonte de Lead
+- [x] Criar página de Histórico com timeline de interações
+- [x] Adicionar funcionalidade de editar lead
+- [x] Melhorar UX geral do CRM com melhor explicação
