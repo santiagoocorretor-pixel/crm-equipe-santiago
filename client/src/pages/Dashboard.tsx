@@ -43,10 +43,10 @@ export default function Dashboard() {
           <Card className="bg-white border-0 shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Total de Leads</p>
-                <p className="text-3xl font-bold text-slate-900 mt-2">
+                <span className="text-slate-600 text-sm font-medium block">Total de Leads</span>
+                <span className="text-3xl font-bold text-slate-900 mt-2 block">
                   {statsLoading ? <Skeleton className="h-8 w-16" /> : totalLeads}
-                </p>
+                </span>
               </div>
               <div className="bg-blue-100 p-3 rounded-lg">
                 <Users className="text-blue-600" size={24} />
@@ -58,14 +58,14 @@ export default function Dashboard() {
           <Card className="bg-white border-0 shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Valor Total</p>
-                <p className="text-3xl font-bold text-slate-900 mt-2">
+                <span className="text-slate-600 text-sm font-medium block">Valor Total</span>
+                <span className="text-3xl font-bold text-slate-900 mt-2 block">
                   {statsLoading ? (
                     <Skeleton className="h-8 w-20" />
                   ) : (
                     `R$ ${(totalValue / 1000).toFixed(1)}k`
                   )}
-                </p>
+                </span>
               </div>
               <div className="bg-green-100 p-3 rounded-lg">
                 <DollarSign className="text-green-600" size={24} />
@@ -77,10 +77,10 @@ export default function Dashboard() {
           <Card className="bg-white border-0 shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Taxa de Conversão</p>
-                <p className="text-3xl font-bold text-slate-900 mt-2">
+                <span className="text-slate-600 text-sm font-medium block">Taxa de Conversão</span>
+                <span className="text-3xl font-bold text-slate-900 mt-2 block">
                   {metricsLoading ? <Skeleton className="h-8 w-16" /> : `${conversionRate}%`}
-                </p>
+                </span>
               </div>
               <div className="bg-purple-100 p-3 rounded-lg">
                 <TrendingUp className="text-purple-600" size={24} />
@@ -92,10 +92,10 @@ export default function Dashboard() {
           <Card className="bg-white border-0 shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-start justify-between">
               <div>
-                <p className="text-slate-600 text-sm font-medium">Tempo Médio/Etapa</p>
-                <p className="text-3xl font-bold text-slate-900 mt-2">
+                <span className="text-slate-600 text-sm font-medium block">Tempo Médio/Etapa</span>
+                <span className="text-3xl font-bold text-slate-900 mt-2 block">
                   {statsLoading ? <Skeleton className="h-8 w-16" /> : "0d"}
-                </p>
+                </span>
               </div>
               <div className="bg-orange-100 p-3 rounded-lg">
                 <Clock className="text-orange-600" size={24} />
