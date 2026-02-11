@@ -5,6 +5,7 @@ import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
+import { registerUser, loginUser, createToken } from "./auth";
 
 export const appRouter = router({
   system: systemRouter,
@@ -13,10 +14,34 @@ export const appRouter = router({
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
-      return {
-        success: true,
-      } as const;
+      return { success: true } as const;
     }),
+    register: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        name: z.string().min(1),
+        password: z.string().min(6),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await registerUser(input.email, input.name, input.password);
+        if (result.success && result.userId) {
+          const token = await createToken({ userId: result.userId, email: input.email });
+          ctx.res.setHeader("Set-Cookie", `${COOKIE_NAME}=${token}; Path=/; HttpOnly; SameSite=Strict`);
+        }
+        return result;
+      }),
+    login: publicProcedure
+      .input(z.object({
+        email: z.string().email(),
+        password: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const result = await loginUser(input.email, input.password);
+        if (result.success && result.token) {
+          ctx.res.setHeader("Set-Cookie", `${COOKIE_NAME}=${result.token}; Path=/; HttpOnly; SameSite=Strict`);
+        }
+        return result;
+      }),
   }),
 
   // ============ FUNNEL STAGES ============

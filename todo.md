@@ -107,3 +107,10 @@
 - [x] Implementar sistema de alertas/lembretes de tarefas
 - [x] Adicionar notificações visuais de tarefas vencidas
 - [x] Testar novas funcionalidades
+
+
+## Refatoração para Servidor Externo (Render)
+- [ ] Implementar autenticação local com JWT
+- [ ] Remover OAuth Manus e configurar para servidor externo
+- [ ] Testar em ambiente local
+- [ ] Validar todas as funcionalidades

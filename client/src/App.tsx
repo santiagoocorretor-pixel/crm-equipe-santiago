@@ -1,9 +1,11 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import NotFound from "@/pages/NotFound";
+import Login from "@/pages/Login";
 import { Route, Switch } from "wouter";
 import ErrorBoundary from "./components/ErrorBoundary";
 import { ThemeProvider } from "./contexts/ThemeContext";
+import { useAuth } from "./_core/hooks/useAuth";
 import Dashboard from "./pages/Dashboard";
 import Leads from "./pages/Leads";
 import Cadences from "./pages/Cadences";
@@ -13,6 +15,16 @@ import History from "./pages/History";
 import Analytics from "./pages/Analytics";
 
 function Router() {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) {
+    return <div className="flex items-center justify-center min-h-screen">Carregando...</div>;
+  }
+
+  if (!isAuthenticated) {
+    return <Route component={Login} />;
+  }
+
   return (
     <Switch>
       <Route path={"/"} component={Dashboard} />
@@ -23,7 +35,6 @@ function Router() {
       <Route path={"/tasks"} component={Tasks} />
       <Route path={"/reports"} component={Reports} />
       <Route path={"/404"} component={NotFound} />
-      {/* Final fallback route */}
       <Route component={NotFound} />
     </Switch>
   );
