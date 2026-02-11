@@ -1,0 +1,9 @@
+{
+  "query": "INSERT INTO users (openId, email, password, name, role, loginMethod, createdAt, updatedAt, lastSignedIn) \nVALUES (\n  CONCAT('admin-', UNIX_TIMESTAMP() * 1000),\n  'admin@vendas.com',\n  '$2b$10$gAUb3.c8YEXN2FHRQs0OgOksTobr3MgcXxb1gO6KzI/kfDwsHylt.',\n  'Administrador',\n  'admin',\n  'local',\n  NOW(),\n  NOW(),\n  NOW()\n);",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2eS5JTZXQ3Jx1iv.root --database FkW66wZgwjfxMMyadWnHY4 --execute INSERT INTO users (openId, email, password, name, role, loginMethod, createdAt, updatedAt, lastSignedIn) \nVALUES (\n  CONCAT('admin-', UNIX_TIMESTAMP() * 1000),\n  'admin@vendas.com',\n  '$2b$10$gAUb3.c8YEXN2FHRQs0OgOksTobr3MgcXxb1gO6KzI/kfDwsHylt.',\n  'Administrador',\n  'admin',\n  'local',\n  NOW(),\n  NOW(),\n  NOW()\n);",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 353
+}

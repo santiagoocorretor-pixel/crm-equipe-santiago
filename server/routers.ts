@@ -53,6 +53,54 @@ export const appRouter = router({
     initializeDefaults: protectedProcedure.mutation(async ({ ctx }) => {
       return db.getOrCreateDefaultFunnelStages(ctx.user.id);
     }),
+
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        color: z.string().regex(/^#[0-9A-F]{6}$/i),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.createFunnelStage(ctx.user.id, input.name, input.color);
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1),
+        color: z.string().regex(/^#[0-9A-F]{6}$/i),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const stages = await db.getFunnelStages(ctx.user.id);
+        const stageExists = stages.some(s => s.id === input.id);
+        if (!stageExists) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Etapa nao encontrada" });
+        }
+        return db.updateFunnelStage(input.id, ctx.user.id, input.name, input.color);
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const stages = await db.getFunnelStages(ctx.user.id);
+        const stageExists = stages.some(s => s.id === input.id);
+        if (!stageExists) {
+          throw new TRPCError({ code: "NOT_FOUND", message: "Etapa nao encontrada" });
+        }
+        return db.deleteFunnelStage(input.id, ctx.user.id);
+      }),
+
+    reorder: protectedProcedure
+      .input(z.object({
+        stages: z.array(z.object({
+          id: z.number(),
+          order: z.number(),
+        })),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        return db.reorderFunnelStages(ctx.user.id, input.stages);
+      }),
   }),
 
   // ============ LEADS ============

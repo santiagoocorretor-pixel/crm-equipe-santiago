@@ -156,6 +156,92 @@ export async function getFunnelStages(userId: number) {
     .orderBy(asc(funnelStages.order));
 }
 
+export async function createFunnelStage(userId: number, name: string, color: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Get the highest order number
+  const existing = await db
+    .select()
+    .from(funnelStages)
+    .where(eq(funnelStages.userId, userId))
+    .orderBy(desc(funnelStages.order))
+    .limit(1);
+
+  const nextOrder = existing.length > 0 ? existing[0].order + 1 : 0;
+
+  await db
+    .insert(funnelStages)
+    .values({
+      userId,
+      name,
+      color,
+      order: nextOrder,
+    });
+
+  // Return the newly created stage
+  const created = await db
+    .select()
+    .from(funnelStages)
+    .where(and(eq(funnelStages.userId, userId), eq(funnelStages.name, name)))
+    .orderBy(desc(funnelStages.createdAt))
+    .limit(1);
+
+  return created[0] || null;
+}
+
+export async function updateFunnelStage(id: number, userId: number, name: string, color: string) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db
+    .update(funnelStages)
+    .set({ name, color })
+    .where(and(eq(funnelStages.id, id), eq(funnelStages.userId, userId)));
+
+  return db
+    .select()
+    .from(funnelStages)
+    .where(eq(funnelStages.id, id))
+    .limit(1);
+}
+
+export async function deleteFunnelStage(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Check if there are leads in this stage
+  const leadsInStage = await db
+    .select()
+    .from(leads)
+    .where(eq(leads.funnelStageId, id))
+    .limit(1);
+
+  if (leadsInStage.length > 0) {
+    throw new Error("Não é possível deletar uma etapa que contém leads. Mova os leads para outra etapa primeiro.");
+  }
+
+  await db
+    .delete(funnelStages)
+    .where(and(eq(funnelStages.id, id), eq(funnelStages.userId, userId)));
+
+  return { success: true };
+}
+
+export async function reorderFunnelStages(userId: number, stages: Array<{ id: number; order: number }>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  for (const stage of stages) {
+    await db
+      .update(funnelStages)
+      .set({ order: stage.order })
+      .where(and(eq(funnelStages.id, stage.id), eq(funnelStages.userId, userId)));
+  }
+
+  return getFunnelStages(userId);
+}
+
 // ============ LEADS ============
 
 export async function createLead(data: {

@@ -122,3 +122,15 @@
 - [x] Criar componente visual de notificações
 - [x] Integrar com CRMLayout
 - [x] Testar sistema de notificações
+
+## Configuração Customizável do Funil
+- [x] Criar página de configuração do funil
+- [x] Implementar API para criar etapas
+- [x] Implementar API para atualizar etapas
+- [x] Implementar API para deletar etapas
+- [x] Implementar API para reordenar etapas
+- [x] Adicionar interface de drag-and-drop para reordenação
+- [x] Adicionar seletor de cores para cada etapa
+- [x] Integrar com sidebar de navegação
+- [x] Adicionar testes unitários para configuração do funil
+- [x] Validar que etapas com leads não podem ser deletadas

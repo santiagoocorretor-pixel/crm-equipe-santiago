@@ -84,6 +84,13 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
               </button>
             );
           })}
+          <button
+            onClick={() => setLocation("/funnel-config")}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors text-slate-300 hover:bg-slate-800"
+          >
+            <Settings size={20} />
+            <span>Configurar Funil</span>
+          </button>
         </nav>
 
         <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-slate-800 w-64">

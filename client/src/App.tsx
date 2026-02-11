@@ -13,6 +13,7 @@ import Tasks from "./pages/Tasks";
 import Reports from "./pages/Reports";
 import History from "./pages/History";
 import Analytics from "./pages/Analytics";
+import FunnelConfig from "./pages/FunnelConfig";
 
 function Router() {
   const { isAuthenticated, loading } = useAuth();
@@ -34,6 +35,7 @@ function Router() {
       <Route path={"/cadences"} component={Cadences} />
       <Route path={"/tasks"} component={Tasks} />
       <Route path={"/reports"} component={Reports} />
+      <Route path={"/funnel-config"} component={FunnelConfig} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
