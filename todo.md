@@ -114,3 +114,11 @@
 - [ ] Remover OAuth Manus e configurar para servidor externo
 - [ ] Testar em ambiente local
 - [ ] Validar todas as funcionalidades
+
+
+## Notificações em Tempo Real
+- [x] Criar tabela de notificações no banco de dados
+- [x] Implementar APIs de notificações
+- [x] Criar componente visual de notificações
+- [x] Integrar com CRMLayout
+- [x] Testar sistema de notificações

@@ -11,6 +11,7 @@ import {
   leadCadences,
   tasks,
   conversionMetrics,
+  notifications,
   Lead,
   FunnelStage,
   Interaction,
@@ -18,7 +19,9 @@ import {
   CadenceStep,
   LeadCadence,
   Task,
-  ConversionMetric
+  ConversionMetric,
+  Notification,
+  InsertNotification
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -446,4 +449,63 @@ export async function getConversionMetrics(userId: number, fromDate?: Date, toDa
     .from(conversionMetrics)
     .where(and(...conditions))
     .orderBy(desc(conversionMetrics.conversionDate));
+}
+
+
+// ============ NOTIFICATIONS ============
+
+export async function createNotification(data: InsertNotification) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db.insert(notifications).values(data);
+}
+
+export async function getNotificationsByUser(userId: number, unreadOnly = false) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const conditions = [eq(notifications.userId, userId)];
+  if (unreadOnly) {
+    conditions.push(eq(notifications.isRead, false));
+  }
+
+  return db
+    .select()
+    .from(notifications)
+    .where(and(...conditions))
+    .orderBy(desc(notifications.createdAt))
+    .limit(50);
+}
+
+export async function markNotificationAsRead(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db
+    .update(notifications)
+    .set({ isRead: true, readAt: new Date() })
+    .where(eq(notifications.id, id));
+}
+
+export async function markAllNotificationsAsRead(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return db
+    .update(notifications)
+    .set({ isRead: true, readAt: new Date() })
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+}
+
+export async function getUnreadNotificationCount(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db
+    .select({ count: notifications.id })
+    .from(notifications)
+    .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
+
+  return result.length > 0 ? result.length : 0;
 }

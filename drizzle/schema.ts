@@ -184,3 +184,23 @@ export const conversionMetrics = mysqlTable("conversion_metrics", {
 
 export type ConversionMetric = typeof conversionMetrics.$inferSelect;
 export type InsertConversionMetric = typeof conversionMetrics.$inferInsert;
+
+
+/**
+ * Notificações em tempo real para usuários
+ */
+export const notifications = mysqlTable("notifications", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id),
+  type: mysqlEnum("type", ["lead_moved", "task_due", "new_interaction", "lead_created", "cadence_started"]).notNull(),
+  title: varchar("title", { length: 255 }).notNull(),
+  message: text("message"),
+  relatedLeadId: int("relatedLeadId").references(() => leads.id),
+  relatedTaskId: int("relatedTaskId").references(() => tasks.id),
+  isRead: boolean("isRead").default(false).notNull(),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  readAt: timestamp("readAt"),
+});
+
+export type Notification = typeof notifications.$inferSelect;
+export type InsertNotification = typeof notifications.$inferInsert;

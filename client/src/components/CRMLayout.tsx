@@ -5,6 +5,7 @@ import { LogOut, BarChart3, Users, Zap, CheckSquare, Settings, Clock, TrendingUp
 import { getLoginUrl } from "@/const";
 import { trpc } from "@/lib/trpc";
 import { useState } from "react";
+import NotificationCenter from "./NotificationCenter";
 
 interface CRMLayoutProps {
   children: React.ReactNode;
@@ -103,6 +104,10 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
 
       {/* Conteúdo Principal */}
       <main className="flex-1 overflow-auto">
+        <div className="flex justify-between items-center p-4 bg-white border-b border-gray-200">
+          <h1 className="text-2xl font-bold text-gray-900">Manus CRM</h1>
+          <NotificationCenter />
+        </div>
         <div className="p-8">
           {children}
         </div>
