@@ -16,7 +16,9 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
 
   useEffect(() => {
     const token = localStorage.getItem("auth_token");
-    if (token) {
+    const isAdmin = localStorage.getItem("is_admin_logged_in") === "true";
+    
+    if (token || isAdmin) {
       setIsLocalAuth(true);
     } else if (!authUser) {
       // Se não houver token local nem usuário do Manus, redireciona para login
@@ -27,7 +29,12 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
   const handleLogout = async () => {
     localStorage.removeItem("auth_token");
     localStorage.removeItem("user_role");
-    await authLogout();
+    localStorage.removeItem("is_admin_logged_in");
+    try {
+      await authLogout();
+    } catch (e) {
+      // Ignorar erro de logout se não estiver autenticado no Manus
+    }
     setLocation("/login");
   };
 

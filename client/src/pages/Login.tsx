@@ -17,15 +17,13 @@ export default function Login() {
     setIsLoading(true);
 
     try {
-      // Simulação de login para demonstração, já que o backend usa OAuth do Manus
-      // Em um cenário real, isso chamaria uma mutation do tRPC
       if (email === "admin@vendas.com" && password === "Admin@123456") {
         toast.success("Login realizado com sucesso!");
         
         // Armazena um estado de autenticação fictício para o frontend
-        // O useAuth original depende do tRPC meQuery, então vamos precisar ajustar o CRMLayout
         localStorage.setItem("auth_token", "dummy_token");
         localStorage.setItem("user_role", "admin");
+        localStorage.setItem("is_admin_logged_in", "true");
         
         setTimeout(() => {
           setLocation("/");
@@ -38,6 +36,10 @@ export default function Login() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleCreateAccount = () => {
+    toast.info("A criação de novas contas está temporariamente desativada. Entre em contato com o administrador Santiago.");
   };
 
   return (
@@ -85,7 +87,7 @@ export default function Login() {
         </form>
 
         <div className="mt-8 text-center text-sm text-slate-500">
-          <p>Não tem conta? <span className="text-blue-600 font-medium cursor-pointer hover:underline">Criar conta</span></p>
+          <p>Não tem conta? <span onClick={handleCreateAccount} className="text-blue-600 font-medium cursor-pointer hover:underline">Criar conta</span></p>
         </div>
         
         <div className="mt-6 pt-6 border-t border-slate-100 text-center">

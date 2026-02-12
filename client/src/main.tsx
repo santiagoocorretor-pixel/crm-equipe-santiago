@@ -18,7 +18,9 @@ const redirectToLoginIfUnauthorized = (error: unknown) => {
 
   if (!isUnauthorized) return;
 
-  // window.location.href = getLoginUrl();
+  // Ignorar redirecionamento se estivermos usando o login simulado
+  if (localStorage.getItem("is_admin_logged_in") === "true") return;
+
   window.location.href = "/login";
 };
 
