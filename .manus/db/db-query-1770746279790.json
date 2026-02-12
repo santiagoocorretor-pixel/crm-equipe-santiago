@@ -1,0 +1,9 @@
+{
+  "query": "DELETE FROM conversion_metrics WHERE userId = 1;\nDELETE FROM lead_cadences WHERE leadId IN (SELECT id FROM leads WHERE userId = 1);\nDELETE FROM interactions WHERE leadId IN (SELECT id FROM leads WHERE userId = 1);\nDELETE FROM tasks WHERE leadId IN (SELECT id FROM leads WHERE userId = 1);\nDELETE FROM leads WHERE userId = 1;\nDELETE FROM funnel_stages WHERE userId = 1;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway02.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2eS5JTZXQ3Jx1iv.root --database FkW66wZgwjfxMMyadWnHY4 --execute DELETE FROM conversion_metrics WHERE userId = 1;\nDELETE FROM lead_cadences WHERE leadId IN (SELECT id FROM leads WHERE userId = 1);\nDELETE FROM interactions WHERE leadId IN (SELECT id FROM leads WHERE userId = 1);\nDELETE FROM tasks WHERE leadId IN (SELECT id FROM leads WHERE userId = 1);\nDELETE FROM leads WHERE userId = 1;\nDELETE FROM funnel_stages WHERE userId = 1;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 682
+}

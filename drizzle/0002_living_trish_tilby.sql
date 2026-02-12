@@ -1,0 +1,1 @@
+ALTER TABLE `leads` MODIFY COLUMN `estimatedValue` varchar(20);

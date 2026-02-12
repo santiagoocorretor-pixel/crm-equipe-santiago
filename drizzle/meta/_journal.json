@@ -1,0 +1,41 @@
+{
+  "version": "7",
+  "dialect": "mysql",
+  "entries": [
+    {
+      "idx": 0,
+      "version": "5",
+      "when": 1770727895626,
+      "tag": "0000_wise_meggan",
+      "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "5",
+      "when": 1770727983354,
+      "tag": "0001_blushing_kang",
+      "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1770728092139,
+      "tag": "0002_living_trish_tilby",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "5",
+      "when": 1770734319061,
+      "tag": "0003_familiar_mongu",
+      "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1770745886790,
+      "tag": "0004_robust_pepper_potts",
+      "breakpoints": true
+    }
+  ]
+}
