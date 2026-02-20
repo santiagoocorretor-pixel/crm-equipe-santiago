@@ -7,6 +7,7 @@ import { registerOAuthRoutes } from "./oauth";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+import * as db from "../db";
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -28,6 +29,23 @@ async function findAvailablePort(startPort: number = 3000): Promise<number> {
 }
 
 async function startServer() {
+  // Garantir que o usuário admin fictício exista no banco de dados
+  try {
+    const adminUser = await db.getUserByOpenId("admin");
+    if (!adminUser) {
+      await db.upsertUser({
+        openId: "admin",
+        name: "Administrador",
+        email: "admin@vendas.com",
+        role: "admin",
+        loginMethod: "local"
+      });
+      console.log("[Auth] Fictional admin user created in database");
+    }
+  } catch (error) {
+    console.error("[Auth] Failed to ensure admin user exists:", error);
+  }
+
   const app = express();
   const server = createServer(app);
   // Configure body parser with larger size limit for file uploads

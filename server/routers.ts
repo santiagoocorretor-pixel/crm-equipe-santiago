@@ -22,7 +22,8 @@ export const appRouter = router({
   // ============ FUNNEL STAGES ============
   funnelStages: router({
     list: protectedProcedure.query(async ({ ctx }) => {
-      return db.getFunnelStages(ctx.user.id);
+      // Garantir que as etapas existam para o usuário
+      return db.getOrCreateDefaultFunnelStages(ctx.user.id);
     }),
 
     initializeDefaults: protectedProcedure.mutation(async ({ ctx }) => {
