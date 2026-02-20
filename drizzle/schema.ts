@@ -204,3 +204,23 @@ export const notifications = mysqlTable("notifications", {
 
 export type Notification = typeof notifications.$inferSelect;
 export type InsertNotification = typeof notifications.$inferInsert;
+
+/**
+ * Corretores - profissionais que trabalham com leads
+ */
+export const brokers = mysqlTable("brokers", {
+  id: int("id").autoincrement().primaryKey(),
+  userId: int("userId").notNull().references(() => users.id),
+  name: varchar("name", { length: 255 }).notNull(),
+  email: varchar("email", { length: 320 }).notNull(),
+  phone: varchar("phone", { length: 20 }),
+  creci: varchar("creci", { length: 50 }),
+  commission: decimal("commission", { precision: 5, scale: 2 }).default("0.00"),
+  status: mysqlEnum("status", ["active", "inactive", "suspended"]).default("active").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("createdAt").defaultNow().notNull(),
+  updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
+});
+
+export type Broker = typeof brokers.$inferSelect;
+export type InsertBroker = typeof brokers.$inferInsert;

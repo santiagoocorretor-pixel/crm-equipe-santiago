@@ -511,17 +511,85 @@ export const appRouter = router({
       return stats;
     }),
 
-    recentActivities: protectedProcedure.query(async ({ ctx }) => {
+       recentActivities: protectedProcedure.query(async ({ ctx }) => {
       const leads = await db.getLeadsByUser(ctx.user.id);
       const leadIds = leads.map(l => l.id);
-
       if (leadIds.length === 0) return [];
-
       // Aqui seria necessário fazer uma query mais complexa
       // Por enquanto retornamos um array vazio
       return [];
     }),
   }),
-});
 
+  // ============ BROKERS (CORRETORES) ============
+  brokers: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      return db.getBrokersByUser(ctx.user.id);
+    }),
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        email: z.string().email(),
+        phone: z.string().optional(),
+        creci: z.string().optional(),
+        commission: z.number().optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const brokerData: any = {
+          name: input.name,
+          email: input.email,
+          phone: input.phone || null,
+          creci: input.creci || null,
+          commission: input.commission ? String(input.commission) : "0.00",
+          notes: input.notes || null,
+          status: "active",
+        };
+        await db.createBroker(ctx.user.id, brokerData);
+        return { success: true };
+      }),
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        email: z.string().email().optional(),
+        phone: z.string().optional(),
+        creci: z.string().optional(),
+        commission: z.number().optional(),
+        status: z.enum(["active", "inactive", "suspended"]).optional(),
+        notes: z.string().optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const broker = await db.getBrokerById(input.id, ctx.user.id);
+        if (!broker) throw new TRPCError({ code: "NOT_FOUND" });
+        
+        const updateData: any = {};
+        if (input.name) updateData.name = input.name;
+        if (input.email) updateData.email = input.email;
+        if (input.phone) updateData.phone = input.phone;
+        if (input.creci) updateData.creci = input.creci;
+        if (input.commission !== undefined) updateData.commission = String(input.commission);
+        if (input.status) updateData.status = input.status;
+        if (input.notes) updateData.notes = input.notes;
+        
+        await db.updateBroker(input.id, ctx.user.id, updateData);
+        return { success: true };
+      }),
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        const broker = await db.getBrokerById(input.id, ctx.user.id);
+        if (!broker) throw new TRPCError({ code: "NOT_FOUND" });
+        await db.deleteBroker(input.id, ctx.user.id);
+        return { success: true };
+      }),
+    getStats: protectedProcedure
+      .input(z.object({ brokerId: z.number() }))
+      .query(async ({ ctx, input }) => {
+        const broker = await db.getBrokerById(input.brokerId, ctx.user.id);
+        if (!broker) throw new TRPCError({ code: "NOT_FOUND" });
+        return db.getBrokerStats(input.brokerId);
+      }),
+  }),
+});
 export type AppRouter = typeof appRouter;

@@ -38,6 +38,7 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
   const navItems = [
     { id: "dashboard", label: "Painel", icon: BarChart3 },
     { id: "leads", label: "Leads", icon: Users },
+    { id: "brokers", label: "Corretores", icon: Users },
     { id: "history", label: "Histórico", icon: Clock },
     { id: "analytics", label: "Análise", icon: TrendingUp },
     { id: "cadences", label: "Cadências", icon: Zap },
@@ -65,6 +66,7 @@ export default function CRMLayout({ children, activeTab }: CRMLayoutProps) {
                   const routes: Record<string, string> = {
                     dashboard: "/",
                     leads: "/leads",
+                    brokers: "/brokers",
                     history: "/history",
                     analytics: "/analytics",
                     cadences: "/cadences",

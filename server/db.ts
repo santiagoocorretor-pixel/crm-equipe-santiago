@@ -12,6 +12,7 @@ import {
   tasks,
   conversionMetrics,
   notifications,
+  brokers,
   Lead,
   FunnelStage,
   Interaction,
@@ -21,7 +22,9 @@ import {
   Task,
   ConversionMetric,
   Notification,
-  InsertNotification
+  InsertNotification,
+  Broker,
+  InsertBroker
 } from "../drizzle/schema";
 import { ENV } from './_core/env';
 
@@ -594,4 +597,91 @@ export async function getUnreadNotificationCount(userId: number) {
     .where(and(eq(notifications.userId, userId), eq(notifications.isRead, false)));
 
   return result.length > 0 ? result.length : 0;
+}
+
+
+// ============ BROKERS (CORRETORES) ============
+
+export async function createBroker(userId: number, data: InsertBroker) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db.insert(brokers).values({
+    ...data,
+    userId,
+  });
+
+  return result;
+}
+
+export async function getBrokersByUser(userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db
+    .select()
+    .from(brokers)
+    .where(eq(brokers.userId, userId))
+    .orderBy(desc(brokers.createdAt));
+}
+
+export async function getBrokerById(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db
+    .select()
+    .from(brokers)
+    .where(and(eq(brokers.id, id), eq(brokers.userId, userId)))
+    .limit(1);
+
+  return result.length > 0 ? result[0] : null;
+}
+
+export async function updateBroker(id: number, userId: number, data: Partial<InsertBroker>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  return await db
+    .update(brokers)
+    .set(data)
+    .where(and(eq(brokers.id, id), eq(brokers.userId, userId)));
+}
+
+export async function deleteBroker(id: number, userId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const result = await db
+    .delete(brokers)
+    .where(and(eq(brokers.id, id), eq(brokers.userId, userId)));
+
+  return { success: true };
+}
+
+export async function getBrokerStats(brokerId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  // Total de leads atribuídos ao corretor
+  const totalLeads = await db
+    .select({ count: leads.id })
+    .from(leads)
+    .where(eq(leads.assignedTo, brokerId));
+
+  // Leads por etapa do funil
+  const leadsByStage = await db
+    .select({
+      stageId: funnelStages.id,
+      stageName: funnelStages.name,
+      count: leads.id,
+    })
+    .from(leads)
+    .innerJoin(funnelStages, eq(leads.funnelStageId, funnelStages.id))
+    .where(eq(leads.assignedTo, brokerId));
+
+  return {
+    totalLeads: totalLeads.length > 0 ? totalLeads[0].count : 0,
+    leadsByStage,
+  };
 }

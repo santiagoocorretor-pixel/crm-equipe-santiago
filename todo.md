@@ -134,3 +134,18 @@
 - [x] Integrar com sidebar de navegação
 - [x] Adicionar testes unitários para configuração do funil
 - [x] Validar que etapas com leads não podem ser deletadas
+
+## Gerenciamento de Corretores
+- [x] Criar tabela de corretores no banco de dados
+- [x] Implementar API para criar corretores
+- [x] Implementar API para atualizar corretores
+- [x] Implementar API para deletar corretores
+- [x] Implementar API para listar corretores
+- [x] Implementar API para obter estatísticas de corretores
+- [x] Criar página de gerenciamento de corretores
+- [x] Adicionar interface para adicionar novos corretores
+- [x] Adicionar interface para editar corretores
+- [x] Adicionar interface para deletar corretores
+- [x] Adicionar visualização de estatísticas por corretor
+- [x] Integrar com sidebar de navegação
+- [x] Corrigir problema de autenticação (SuperJSON)
