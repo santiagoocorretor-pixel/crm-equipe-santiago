@@ -387,8 +387,8 @@ export default function Analytics() {
                   </tr>
                 </thead>
                 <tbody>
-                  {funnelData.map((stage) => (
-                    <tr key={stage.name} className="border-b border-slate-100 hover:bg-slate-50">
+                  {funnelData.map((stage, index) => (
+                    <tr key={`stage-${index}`} className="border-b border-slate-100 hover:bg-slate-50">
                       <td className="py-3 px-4 text-slate-900 font-medium">{stage.name}</td>
                       <td className="py-3 px-4 text-right text-slate-600">{stage.leads}</td>
                       <td className="py-3 px-4 text-right text-slate-600">{stage.percentage.toFixed(1)}%</td>
