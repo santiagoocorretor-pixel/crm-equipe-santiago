@@ -1,5 +1,6 @@
 import { eq, and, desc, asc, gte, lte, like, inArray } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import Database from "better-sqlite3";
 import { 
   InsertUser, 
   users,
@@ -31,9 +32,14 @@ import { ENV } from './_core/env';
 let _db: ReturnType<typeof drizzle> | null = null;
 
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  if (!_db) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const dbUrl = process.env.DATABASE_URL || "file:./data/crm.db";
+      const dbPath = dbUrl.replace(/^file:\/+/, "/").replace(/^file:/, "./");
+      const sqlite = new Database(dbPath);
+      sqlite.pragma("journal_mode = WAL");
+      _db = drizzle(sqlite);
+      console.log("[Database] Connected to SQLite:", dbPath);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
